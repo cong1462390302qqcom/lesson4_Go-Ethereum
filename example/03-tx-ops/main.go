@@ -21,11 +21,11 @@ import (
 // 1. 查询交易：--tx <hash> - 按哈希查询交易与回执，解析关键字段
 // 2. 发送交易：--send --to <address> --amount <eth> - 发起 ETH 转账交易
 
-//go run .\main.go --tx 0x4a70a384867b44a3cd8af924e03eabd1c2d34ccab246aaed98b5747b1bac9bf2  --to 0x0041d889909865a507502817bD43063A826E230d
-//0x4a70a384867b44a3cd8af924e03eabd1c2d34ccab246aaed98b5747b1bac9bf2
+// go run .\main.go --tx 0x4a70a384867b44a3cd8af924e03eabd1c2d34ccab246aaed98b5747b1bac9bf2  --to 0x0041d889909865a507502817bD43063A826E230d
+// 0x4a70a384867b44a3cd8af924e03eabd1c2d34ccab246aaed98b5747b1bac9bf2
 //
-//go run .\main.go -send -to 0xD19147073e0d428ebB10A5Da2754e1DD846bdaC1  -amount 0.001
-//0x0ce50ab36bcfc25bbffa2bc6ca5b819e5067c61b40927187a8a3d5ba796bf91b
+// go run .\main.go -send -to 0xD19147073e0d428ebB10A5Da2754e1DD846bdaC1  -amount 0.001
+// 0x0ce50ab36bcfc25bbffa2bc6ca5b819e5067c61b40927187a8a3d5ba796bf91b
 func main() {
 	txHashHex := flag.String("tx", "", "transaction hash (for query mode)")
 	sendMode := flag.Bool("send", false, "enable send transaction mode")
@@ -80,8 +80,7 @@ func queryTransaction(toAddrHex string) {
 func sendTransaction(ctx context.Context, toAddrHex string, amountEth float64) {
 	client := connectRPCURL()
 	defer client.Close()
-	// privKeyHex := os.Getenv("SENDER_PRIVATE_KEY")
-	privKeyHex := "812596831af721d5daf6f637e3abd89cade58eea1c7cb201909f92deabb85633"
+	privKeyHex := os.Getenv("ETH_SENDER_PRIVATE_KEY")
 	if privKeyHex == "" {
 		log.Fatal("SENDER_PRIVATE_KEY is not set (required for send mode)")
 	}

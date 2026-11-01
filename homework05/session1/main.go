@@ -17,7 +17,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-/**
+/*
+*
 任务 1：区块链读写 任务目标
 使用 Sepolia 测试网络实现基础的区块链交互，包括查询区块和发送交易。 具体任务
 
@@ -46,7 +47,6 @@ func main() {
 		conectTest(*blockNumberFlag)
 	} else {
 		fmt.Println("to sendTransactionTest()")
-		//0x3735ca869ddec127201c354708727ffdd16c073b7b4928be969463dec3ed1c3c
 		sendTransactionTest(*toAddrHex, *amountEth)
 	}
 }
@@ -88,7 +88,9 @@ func conectTest(blockNumberFlag uint64) {
 
 func sendTransactionTest(toAddrHex string, amountEth float64) {
 	rpcURL := os.Getenv("ETH_RPC_URL")
-	privKeyHex := "812596831af721d5daf6f637e3abd89cade58eea1c7cb201909f92deabb85633"
+	privKeyHex := os.Getenv("ETH_SENDER_PRIVATE_KEY")
+
+	fmt.Println(privKeyHex)
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	client, err := ethclient.DialContext(ctx, rpcURL)
@@ -106,11 +108,15 @@ func sendTransactionTest(toAddrHex string, amountEth float64) {
 		log.Fatal("error casting public key to ECDSA")
 	}
 
-	//发送交易的必须参数(7个)，chainid，nonce，to，value，gasLimit,gasPrice,data
+	//发送交易的必须参数(7个) chainid,nonce,to,value,gasLimit,gasPrice,data
 
 	fromAddr := crypto.PubkeyToAddress(*publicKeyECDSA)
 	toAddr := common.HexToAddress(toAddrHex)
 	chainId, err := client.ChainID(ctx)
+	if toAddr == common.HexToAddress("0x0000000000000000000000000000000000000000") {
+		log.Fatalf("error toAddr : %v", toAddr)
+		return
+	}
 	if err != nil {
 		log.Fatalf("failed to get chain id: %v", err)
 	}
@@ -129,7 +135,6 @@ func sendTransactionTest(toAddrHex string, amountEth float64) {
 	if err != nil {
 		log.Fatalf("failed to get GasPrice: %v", err)
 	}
-	gasLimit := uint64(21000)
 	msg := ethereum.CallMsg{From: fromAddr,
 		To:    &toAddr,       // 如果调合约，这里是合约地址
 		Data:  nil,           // 如果调合约，这里是 ABI 编码后的数据
@@ -139,6 +144,7 @@ func sendTransactionTest(toAddrHex string, amountEth float64) {
 	if err != nil {
 		log.Fatalf("failed to EstimateGas: %v", err)
 	}
+	gasLimit := estimateGasLimit * 120 / 100
 	txData := &types.DynamicFeeTx{
 		ChainID:   chainId,
 		Nonce:     nonce,

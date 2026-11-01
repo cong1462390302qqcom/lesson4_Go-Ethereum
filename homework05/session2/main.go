@@ -53,7 +53,7 @@ func main() {
 	fmt.Printf("===================================================")
 	// ================= 写操作（Send Transaction） =================
 	fmt.Println("正在增加计数器...")
-	privKeyHex := "812596831af721d5daf6f637e3abd89cade58eea1c7cb201909f92deabb85633"
+	privKeyHex := os.Getenv("ETH_SENDER_PRIVATE_KEY")
 	privateKey, err := crypto.HexToECDSA(privKeyHex)
 	if err != nil {
 		log.Fatalf("failed to get HexToECDSA : %v", err)
@@ -71,8 +71,20 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to get NewKeyedTransactorWithChainID : %v", err)
 	}
+	/*msg := ethereum.CallMsg{
+		To:    &contractAddress,
+		Data:  nil,
+		Value: big.NewInt(0),
+	}
+	estimateGasLimit, err := client.EstimateGas(ctx, msg)
+	if err != nil {
+		log.Fatalf("failed to EstimateGas : %v", err)
+	}
+	//参数不送，发送交易时如果gaslimit为零，会在内部调用EstimateGas
+	auth.GasLimit = estimateGasLimit * 120 / 100*/
+
 	auth.Nonce = big.NewInt(int64(nonce))
-	auth.GasLimit = uint64(300000)
+
 	// 发送交易
 	tx, err := instance.Increment(auth)
 	if err != nil {
